@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ml_utils"  # Replace with your library name
+version = "0.1.0"
+description = "A collection of simple utility functions for ML"
+readme = "README.md"  # Optional: replace with your readme file if available
+license = {text = "MIT"}  # Or use a license file
+authors = [
+    { name = "Cole Bisaccia", email = "cbisaccia78@gmail.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+
+dependencies = ["numpy"]
+
+[project.urls]
+homepage = "https://your.project.homepage"  # Optional: link to your project
+
+
