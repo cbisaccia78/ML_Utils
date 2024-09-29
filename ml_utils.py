@@ -444,3 +444,11 @@ def plot_kfold_averaged_metric_per_epoch(tr_X, tr_Y, k, create_compile_fit, epoc
     averaged_val_metrics = [np.mean([fold[i] for fold in val_metrics]) for i in range(0, epochs)]
     plt.plot(range(1+skip_first_n, epochs+1), averaged_val_metrics[skip_first_n:])
     plt.show()
+
+
+def plot_strat_kfold_averaged_metric_per_epoch(tr_X, tr_Y, n, k, create_compile_fit, epochs, metric='val_loss', skip_first_n=0):
+
+    val_metrics = strat_kfold(tr_X, tr_Y, n, k, create_compile_fit, metric=metric)
+    averaged_val_metrics = [np.mean([fold[i] for fold in val_metrics]) for i in range(0, epochs)]
+    plt.plot(range(1+skip_first_n, epochs+1), averaged_val_metrics[skip_first_n:])
+    plt.show()
