@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent"
 ]
 
-dependencies = ["numpy"]
+dependencies = ["numpy", "matplotlib"]
 
 [project.urls]
 homepage = "https://your.project.homepage"  # Optional: link to your project
