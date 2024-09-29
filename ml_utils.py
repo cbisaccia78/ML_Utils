@@ -45,7 +45,7 @@ def normalize(X, mean, std):
 
 def kfold(tr_X, tr_Y, k, create_compile_fit, metric='val_loss'):
     """
-    Performs K-Fold cross-validation on a dataset and returns the validation metric for each fold.
+    Performs K-Fold cross-validation on a dataset and returns the validation metric for each epoch for each fold.
 
     This function splits the dataset into `k` subsets (folds) for cross-validation. In each iteration, 
     one fold is used as the validation set while the remaining `k-1` folds are used for training. The 
@@ -79,9 +79,9 @@ def kfold(tr_X, tr_Y, k, create_compile_fit, metric='val_loss'):
 
     Returns
     -------
-    val_metrics : list of float
-        A list containing the final value of the specified validation metric for each fold. 
-        The length of the list is `k`, and each element corresponds to the value of the `metric` 
+    val_metrics : list of lists
+        A list containing the value of the specified validation metric for each epoch on each fold. 
+        The length of the list is `k`, and each element (list) corresponds to the values of the `metric` 
         (e.g., validation loss or validation accuracy) for one of the `k` folds.
 
     Notes
@@ -108,7 +108,7 @@ def kfold(tr_X, tr_Y, k, create_compile_fit, metric='val_loss'):
 
     >>> val_metrics = strat_kfold(tr_X, tr_Y, 10, 5, create_compile_fit, metric='val_loss')
     >>> print(val_metrics)
-    [0.3, 0.3, 0.3, 0.3, 0.3]  # Example output
+    [[0.5, 0.4, 0.35, 0.3], [0.5, 0.4, 0.35, 0.3], [0.5, 0.4, 0.35, 0.3], [0.5, 0.4, 0.35, 0.3],[0.5, 0.4, 0.35, 0.3]]  # Example output
 
     """
 
@@ -127,7 +127,7 @@ def kfold(tr_X, tr_Y, k, create_compile_fit, metric='val_loss'):
 
         history = create_compile_fit(trk_X, trk_Y, v_X, v_Y)
 
-        val_metrics.append(history[metric][-1])
+        val_metrics.append(history[metric])
 
         val_start = val_end
         val_end = val_end + val_examples_per_fold
@@ -143,7 +143,7 @@ def kfold(tr_X, tr_Y, k, create_compile_fit, metric='val_loss'):
 
         history = create_compile_fit(trk_X, trk_Y, v_X, v_Y)
 
-        val_metrics.append(history[metric][-1])
+        val_metrics.append(history[metric])
 
         val_start = val_end
         val_end = val_end + val_examples_per_fold + 1
@@ -187,9 +187,9 @@ def strat_kfold(tr_X, tr_Y, n, k, create_compile_fit, metric='val_loss'):
 
     Returns
     -------
-    val_metrics : list of float
-        A list containing the final value of the specified validation metric for each fold. 
-        The length of the list is `k`, and each element corresponds to the value of the `metric` 
+    val_metrics : list of lists
+        A list containing the value of the specified validation metric for each epoch on each fold. 
+        The length of the list is `k`, and each element (list) corresponds to the values of the `metric` 
         (e.g., validation loss or validation accuracy) for one of the `k` folds.
 
     Notes
@@ -214,9 +214,9 @@ def strat_kfold(tr_X, tr_Y, n, k, create_compile_fit, metric='val_loss'):
     >>> tr_X = np.random.rand(100, 10)  # 100 examples, 10 features
     >>> tr_Y = np.random.randint(0, 2, size=100)  # 100 binary labels
 
-    >>> val_metrics = strat_kfold(tr_X, tr_Y, 10, 5, create_compile_fit, metric='val_loss')
+    >>> val_metrics = strat_kfold(tr_X, tr_Y, 2, 2, create_compile_fit, metric='val_loss')
     >>> print(val_metrics)
-    [0.3, 0.3, 0.3, 0.3, 0.3]  # Example output
+    [[0.5, 0.4, 0.35, 0.3], [0.5, 0.4, 0.35, 0.3], [0.5, 0.4, 0.35, 0.3], [0.5, 0.4, 0.35, 0.3]]  # Example output
 
     """
     val_metrics = []
@@ -437,3 +437,10 @@ def plot_metrics_per_epoch(tr_X, tr_Y, val_split_percentage, create_compile_fit,
 
     tr_X = np.vstack((tr_X, v_X))
     tr_Y = np.concatenate((tr_Y, v_Y))
+
+def plot_kfold_averaged_metric_per_epoch(tr_X, tr_Y, k, create_compile_fit, epochs, metric='val_loss', skip_first_n=0):
+
+    val_metrics = kfold(tr_X, tr_Y, k, create_compile_fit, metric=metric)
+    averaged_val_metrics = [np.mean([fold[i] for fold in val_metrics]) for i in range(0, epochs)]
+    plt.plot(range(1+skip_first_n, epochs+1), averaged_val_metrics[skip_first_n:])
+    plt.show()
