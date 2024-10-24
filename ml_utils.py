@@ -669,3 +669,73 @@ def vectorize_sequences(sequences, dimension=10000):
         for j in sequence:
             results[i, j] = 1
     return results
+
+def split_vector(vector, *percentages):
+    """
+    Splits a vector into multiple sub-vectors based on provided percentages.
+
+    This function takes a 1D array or list `vector` and splits it into multiple sub-arrays or sub-lists. 
+    The split points are defined by percentages provided as arguments. 
+
+    WARNING: The percentages should be strictly increasing.
+
+    Example
+    -------
+    Suppose you have a vector of length 10 and you want to split it into three parts: 
+    the first 30%, the next 20%, and the last 50%.
+
+    >>> vector = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    >>> split_vector(vector, 0.3, 0.5)
+    ([1, 2, 3], [4, 5], [6, 7, 8, 9, 10])
+
+    Parameters
+    ----------
+    vector : list or 1D numpy.ndarray
+        The vector (array or list) to be split. It is assumed to be a 1D structure.
+    
+    *percentages : float
+        Variable number of percentage values that determine where the splits should occur. These values should 
+        be in the range [0, 1] and represent the proportion of the vector to include in each segment. The percentages 
+        should sum to less than or equal to 1. The remaining portion of the vector will form the last split.
+
+    Returns
+    -------
+    tuple
+        A tuple of sub-vectors (list or numpy.ndarray, depending on the input type). Each sub-vector is a portion 
+        of the original `vector` as defined by the provided `percentages`.
+
+    Raises
+    ------
+    ValueError
+        - If any percentage results in an index that exceeds the length of the vector.
+        - If percentages are not strictly increasing.
+
+    Notes
+    -----
+    - The function divides the vector by calculating the corresponding indices for each percentage. 
+      The first split contains the first `percentage * len(vector)` elements, the second split the next portion, 
+      and so on, until the end of the vector is reached.
+    - The percentage sequence should be increasing
+    
+    Edge Cases
+    ----------
+    1. If no percentages are provided, the entire vector is returned as a single element tuple.
+    
+    2. If the percentages do not sum to 1, the remaining part of the vector (i.e., `1 - sum(percentages)`) 
+       is returned as the final split.
+    
+    3. If a percentage results in an index beyond the vector length, a `ValueError` is raised.
+    """
+    vector_length = len(vector)
+    splits = []
+    start = 0
+    for boundary in percentages:
+        index = int(boundary * vector_length)
+        if index > vector_length:
+            raise ValueError("split_vector encountered out of range index.")
+        splits.append(vector[start:index])
+        start = index
+    
+    splits.append(vector[start:])
+
+    return tuple(splits)
