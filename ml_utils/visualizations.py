@@ -69,7 +69,7 @@ def plot_metrics_per_epoch(history, metrics, metric_colors, skip_first_n=0):
 
     plt.show()
 
-def plot_averaged_metric_per_epoch(val_metrics, epochs, skip_first_n=0):
+def plot_averaged_metric_per_epoch(metrics, epochs, skip_first_n=0):
     """
     Plots the averaged metric across epochs from K-Fold or strat-Kfold cross-validation.
 
@@ -79,7 +79,7 @@ def plot_averaged_metric_per_epoch(val_metrics, epochs, skip_first_n=0):
 
     Parameters
     ----------
-    val_metrics : list[list[nums]]
+    metrics : list[list[nums]]
         The result of calling metrics.kfold()
 
     epochs : int
@@ -96,16 +96,8 @@ def plot_averaged_metric_per_epoch(val_metrics, epochs, skip_first_n=0):
         This function directly generates and displays a plot of the averaged metric values across epochs 
         using `matplotlib.pyplot` and does not return any values.
 
-    Raises
-    ------
-    ValueError
-        If `epochs` is greater than the number of epochs returned by the history object.
-
     Notes
     -----
-    - The function uses K-Fold cross-validation, where the data is split into `n*k` subsets (folds). For 
-      each fold, the model is trained for `epochs` epochs, and the specified metric (e.g., validation 
-      loss or accuracy) is recorded for each epoch.
     - The metric values for each fold are averaged across all n*k` folds for every epoch.
     - The resulting averaged metric values are then plotted over the epochs.
     - The `skip_first_n` parameter allows skipping the first `skip_first_n` epochs when plotting, useful for 
@@ -113,14 +105,12 @@ def plot_averaged_metric_per_epoch(val_metrics, epochs, skip_first_n=0):
 
     Example
     -------
-    Suppose you have a `create_compile_fit` function that trains a model and returns a history dictionary 
-    with metrics like 'val_loss'. Here's how you can use `plot_kfold_averaged_metric_per_epoch`:
 
-    ... val_metrics = metrics.kfold(...)
+    ... metrics = metrics.kfold(...)
 
     >>> plot_kfold_averaged_metric_per_epoch(val_metrics, epochs=5, metric='val_loss')
     # This will plot the average validation loss across 5 epochs, averaged over 25 folds.
     """
-    averaged_val_metrics = [np.mean([fold[i] for fold in val_metrics]) for i in range(0, epochs)]
-    plt.plot(range(1+skip_first_n, epochs+1), averaged_val_metrics[skip_first_n:])
+    averaged_metrics = [np.mean([fold[i] for fold in metrics]) for i in range(0, epochs)]
+    plt.plot(range(1+skip_first_n, epochs+1), averaged_metrics[skip_first_n:])
     plt.show()
