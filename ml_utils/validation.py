@@ -63,8 +63,8 @@ def kfold(tr_X, tr_Y, k, create_compile_fit, metric='val_loss'):
     >>> tr_X = np.random.rand(100, 10)  # 100 examples, 10 features
     >>> tr_Y = np.random.randint(0, 2, size=100)  # 100 binary labels
 
-    >>> val_metrics = strat_kfold(tr_X, tr_Y, 10, 5, create_compile_fit, metric='val_loss')
-    >>> print(val_metrics)
+    >>> val_metrics = kfold(tr_X, tr_Y, 5, create_compile_fit, metric='val_loss')
+    >>> print(val_metrics) # assuming 4 training epochs
     [[0.5, 0.4, 0.35, 0.3], [0.5, 0.4, 0.35, 0.3], [0.5, 0.4, 0.35, 0.3], [0.5, 0.4, 0.35, 0.3],[0.5, 0.4, 0.35, 0.3]]  # Example output
 
     """
