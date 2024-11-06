@@ -112,6 +112,73 @@ def split_vector(vector, *percentages):
 
     return tuple(splits)
 
+def flatten_dict_values(d):
+    """
+    Recursively extracts all non-dict and non-list values from a nested dictionary or list structure 
+    and returns them as a flattened list.
+
+    This function traverses a dictionary `d`, which may contain nested dictionaries, lists, and other values. 
+    It recursively collects all non-dict and non-list values, appending them to a flat list, which it then returns.
+
+    Parameters
+    ----------
+    d : dict
+        The dictionary to be flattened. `d` can contain nested dictionaries, lists, or other data types. 
+        It may also contain non-dict and non-list values directly.
+
+    Returns
+    -------
+    list
+        A list of all non-dict, non-list values found within `d`. Each element in the list corresponds to 
+        a value within `d` that is not itself a dictionary or list, regardless of how deeply nested it is.
+
+    Notes
+    -----
+    - The function handles arbitrarily nested dictionaries and lists.
+    - Values that are dictionaries or lists are further explored, while other types of values are appended 
+      directly to the result list.
+    - The original dictionary structure is not modified; only the values are extracted.
+    - The function does not return dictionary keys or list indices, only their associated values.
+
+    Example
+    -------
+    >>> d = {
+        'a': 1,
+        'b': {'c': 2, 'd': [3, {'e': 4}, 5]},
+        'f': [6, {'g': 7, 'h': [8, 9]}]
+    }
+    >>> flatten_dict_values(d)
+    [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    Explanation:
+    - `d` contains nested dictionaries and lists.
+    - The function flattens the values, discarding the structure, to produce a single list of values.
+
+    Edge Cases
+    ----------
+    - If `d` is empty, the function returns an empty list.
+    - If `d` contains only nested dictionaries or lists without any terminal (non-dict, non-list) values, 
+      the function returns an empty list.
+    - If `d` contains lists of dictionaries or other nested combinations, the function correctly handles these, 
+      extracting all terminal values.
+
+    """
+
+    flat_values = []
+
+    def recurse(value):
+        if isinstance(value, dict):
+            for val in value.values():
+                recurse(val)
+        elif isinstance(value, list):
+            for item in value:
+                recurse(item)
+        else:
+            flat_values.append(value)
+
+    recurse(d)
+    return flat_values
+
 def string_to_int_sequence(data, vocab_size=-1, remove_top=0):
     """
     Converts a collection of strings into sequences of integer representations based on word frequency.
