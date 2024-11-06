@@ -1,3 +1,4 @@
+from collections import Counter
 import numpy as np
 
 def normalize(X, mean, std):
@@ -174,3 +175,83 @@ def split_vector(vector, *percentages):
     splits.append(vector[start:])
 
     return tuple(splits)
+
+def string_to_int_sequence(data, vocab_size, remove_top=0):
+    """
+    Converts a collection of strings into sequences of integer representations based on word frequency.
+
+    This function takes an array of strings (sentences) and converts each word into an integer ID, 
+    based on the frequency of words across the entire dataset. The top `remove_top` most frequent words 
+    can be excluded from the vocabulary. Words outside of the `vocab_size` most common words are assigned 
+    the `vocab_size` integer, which serves as an "out of vocabulary" (OOV) placeholder.
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        A 1D array where each entry is a string, typically representing a sentence or phrase.
+    
+    vocab_size : int
+        The maximum number of unique words (excluding `remove_top`) to include in the vocabulary. 
+        This defines the range of integer values assigned to words (from 0 to `vocab_size - 1`).
+    
+    remove_top : int, optional
+        The number of most frequent words to exclude from the vocabulary, which can help reduce 
+        the impact of very common words (like "the", "is", etc.). By default, no words are removed.
+
+    Returns
+    -------
+    numpy.ndarray
+        A 2D array where each row corresponds to an entry in `data`, and each word in that entry 
+        is replaced by its integer ID. Words not in the vocabulary are represented by the `vocab_size` integer 
+        (acting as an "out of vocabulary" identifier).
+
+    Raises
+    ------
+    TypeError
+        If `data` is not a NumPy array.
+
+    Notes
+    -----
+    - The function first tokenizes each string into words based on spaces.
+    - A vocabulary is built from the words in `data`, sorted by frequency.
+    - The most common `remove_top` words are removed from the vocabulary, and the remaining words up to `vocab_size`
+      are assigned integer IDs.
+    - Words not in the vocabulary or excluded by `remove_top` are mapped to `vocab_size` in the output, 
+      which acts as a placeholder for out-of-vocabulary words.
+
+    Example
+    -------
+    >>> data = np.array(["this is a test", "this is another test", "test example"])
+    >>> string_to_int_sequence(data, vocab_size=5, remove_top=1)
+    array([[0, 1, 2, 5],
+           [0, 1, 3, 5],
+           [5, 5]], dtype=object)
+
+    Edge Cases
+    ----------
+    - If `data` is empty, the function will return an empty 2D array.
+    - If `vocab_size` is less than `remove_top`, all words will be considered OOV and mapped to `vocab_size`.
+    - If any entries in `data` contain words that are only whitespace, these will be ignored during frequency counting.
+    """
+    if type(data) != np.ndarray:
+        raise TypeError("must be numpy type")
+
+    data = data.astype(str)
+
+    data = np.char.split(data, ' ')
+
+    flattened_data = [item for sublist in data for item in sublist]
+
+    word_counts = Counter(flattened_data)
+
+    flattened_data = None
+
+    sorted_words = [word for word, count in word_counts.most_common()]
+
+    sorted_words = sorted_words[remove_top:vocab_size]
+
+    word_to_freq = {word: idx for idx, word in enumerate(sorted_words)}
+
+    data = np.array([[word_to_freq.get(word, vocab_size) for word in row] for row in data], dtype=object)
+
+    return data
