@@ -42,7 +42,7 @@ def normalize(X, mean, std):
     X -= mean
     X /= std
 
-def vectorize_sequences(sequences, dimension=10000):
+def int_to_binary_sequence(sequences, dimension=-1):
     """
     Converts a list of integer sequences into a 2D NumPy array of binary vectors.
 
@@ -91,7 +91,7 @@ def vectorize_sequences(sequences, dimension=10000):
     Suppose you have a dataset of sequences representing tokenized sentences, where each token is mapped to an integer index.
 
     >>> sequences = [[1, 3, 5], [2, 3, 4, 5]]
-    >>> vectorized = vectorize_sequences(sequences, dimension=6)
+    >>> vectorized = int_to_binary_sequences(sequences, dimension=6)
     >>> print(vectorized)
     [[0. 1. 0. 1. 0. 1.]
      [0. 0. 1. 1. 1. 1.]]
@@ -100,6 +100,9 @@ def vectorize_sequences(sequences, dimension=10000):
     index in the sequence sets the corresponding position in the vector to 1.
 
     """
+    if dimension == -1:
+        dimension = np.max([max(subsequence) for subsequence in sequences]) + 1
+
     results = np.zeros((len(sequences), dimension))
     for i, sequence in enumerate(sequences):
         for j in sequence:
@@ -176,7 +179,7 @@ def split_vector(vector, *percentages):
 
     return tuple(splits)
 
-def string_to_int_sequence(data, vocab_size, remove_top=0):
+def string_to_int_sequence(data, vocab_size=-1, remove_top=0):
     """
     Converts a collection of strings into sequences of integer representations based on word frequency.
 
@@ -244,6 +247,9 @@ def string_to_int_sequence(data, vocab_size, remove_top=0):
 
     word_counts = Counter(flattened_data)
 
+    if vocab_size == -1:
+        vocab_size = len(word_counts)
+
     flattened_data = None
 
     sorted_words = [word for word, count in word_counts.most_common()]
@@ -254,4 +260,68 @@ def string_to_int_sequence(data, vocab_size, remove_top=0):
 
     data = np.array([[word_to_freq.get(word, vocab_size) for word in row] for row in data], dtype=object)
 
+    return data
+
+def vectorize_sequences(data, vocab_size=-1, remove_top=0):
+    """
+    Converts an array of string arrays into a one-hot encoded vector based on word frequency.
+
+    This function takes an array of strings (sentences) and converts each word into an integer ID, 
+    based on the frequency of words across the entire dataset. The top `remove_top` most frequent words 
+    can be excluded from the vocabulary. Words outside of the `vocab_size` most common words are assigned 
+    the `vocab_size` integer, which serves as an "out of vocabulary" (OOV) placeholder.
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        A 1D array where each entry is a string, typically representing a sentence or phrase.
+    
+    vocab_size : int
+        The maximum number of unique words (excluding `remove_top`) to include in the vocabulary. 
+        This defines the range of integer values assigned to words (from 0 to `vocab_size - 1`).
+    
+    remove_top : int, optional
+        The number of most frequent words to exclude from the vocabulary, which can help reduce 
+        the impact of very common words (like "the", "is", etc.). By default, no words are removed.
+
+    Returns
+    -------
+    numpy.ndarray
+        A 2D array where each row corresponds to an entry in `data`, and each word in that entry 
+        is replaced by its integer ID. Words not in the vocabulary are represented by the `vocab_size` integer 
+        (acting as an "out of vocabulary" identifier).
+
+    Raises
+    ------
+    TypeError
+        If `data` is not a NumPy array.
+
+    Notes
+    -----
+    - The function first tokenizes each string into words based on spaces.
+    - A vocabulary is built from the words in `data`, sorted by frequency.
+    - The most common `remove_top` words are removed from the vocabulary, and the remaining words up to `vocab_size`
+      are assigned integer IDs.
+    - Words not in the vocabulary or excluded by `remove_top` are mapped to `vocab_size` in the output, 
+      which acts as a placeholder for out-of-vocabulary words.
+    - Creates a binary vector for each sequence of integers, where the presence of an integer `j` sets 
+      the `j`-th position in the vector to 1.
+    
+
+    Example
+    -------
+    >>> data = np.array(["this is a test", "this is another test", "test example"])
+    >>> vectorize_sequences(data)
+    array([[1., 1., 1., 1., 0., 0.],
+       [1., 1., 1., 0., 1., 0.],
+       [1., 0., 0., 0., 0., 1.]])
+
+    Edge Cases
+    ----------
+    - If `data` is empty, the function will return an empty 2D array.
+    - If `vocab_size` is less than `remove_top`, all words will be considered OOV and mapped to `vocab_size`.
+    - If any entries in `data` contain words that are only whitespace, these will be ignored during frequency counting.
+    """
+    data = string_to_int_sequence(data, vocab_size, remove_top)
+    data = int_to_binary_sequence(data, vocab_size)
     return data
