@@ -42,73 +42,6 @@ def normalize(X, mean, std):
     X -= mean
     X /= std
 
-def int_to_binary_sequence(sequences, dimension=-1):
-    """
-    Converts a list of integer sequences into a 2D NumPy array of binary vectors.
-
-    This function transforms each sequence of integers (e.g., word indices) into a fixed-size binary vector 
-    representation. Each sequence corresponds to a row in the resulting 2D array, where the columns represent 
-    the possible indices (up to the specified `dimension`). If an integer `j` appears in a sequence, the 
-    corresponding position in the binary vector is set to 1, otherwise 0. 
-
-    This is commonly used for preparing textual data for machine learning models (e.g., bag-of-words or 
-    one-hot encoding of text).
-
-    Parameters
-    ----------
-    sequences : list of lists of int
-        A list of sequences, where each sequence is a list of integers. Each integer corresponds to a specific 
-        word or token index.
-
-    dimension : int, optional
-        The size of the binary vector for each sequence (default is 10,000). This defines the number of 
-        possible features or word indices to represent. All sequences will be converted to binary vectors 
-        of this length.
-
-    Returns
-    -------
-    results : numpy.ndarray
-        A 2D NumPy array of shape `(len(sequences), dimension)`. Each row corresponds to a sequence, and 
-        each column corresponds to a specific feature (or token index). If an index appears in the sequence, 
-        the corresponding value in the array is 1, otherwise 0.
-
-    Raises
-    ------
-    IndexError
-        If any integer in a sequence is greater than or equal to `dimension`, as it will be out of bounds for 
-        the binary vector.
-
-    Notes
-    -----
-    - This function creates a binary vector for each sequence, where the presence of an integer `j` sets 
-      the `j`-th position in the vector to 1.
-    - It assumes that the integers in the sequences are non-negative and less than `dimension`. 
-    - This type of encoding is useful in natural language processing tasks where input sequences are tokenized 
-      as word or character indices, such as in sentiment analysis or text classification.
-
-    Example
-    -------
-    Suppose you have a dataset of sequences representing tokenized sentences, where each token is mapped to an integer index.
-
-    >>> sequences = [[1, 3, 5], [2, 3, 4, 5]]
-    >>> vectorized = int_to_binary_sequences(sequences, dimension=6)
-    >>> print(vectorized)
-    [[0. 1. 0. 1. 0. 1.]
-     [0. 0. 1. 1. 1. 1.]]
-
-    In this example, each sequence is converted into a binary vector of length 6, where the presence of an 
-    index in the sequence sets the corresponding position in the vector to 1.
-
-    """
-    if dimension == -1:
-        dimension = np.max([max(subsequence) for subsequence in sequences]) + 1
-
-    results = np.zeros((len(sequences), dimension))
-    for i, sequence in enumerate(sequences):
-        for j in sequence:
-            results[i, j] = 1
-    return results
-
 def split_vector(vector, *percentages):
     """
     Splits a vector into multiple sub-vectors based on provided percentages.
@@ -261,6 +194,73 @@ def string_to_int_sequence(data, vocab_size=-1, remove_top=0):
     data = np.array([[word_to_freq.get(word, vocab_size) for word in row] for row in data], dtype=object)
 
     return data
+
+def int_to_binary_sequence(sequences, dimension=-1):
+    """
+    Converts a list of integer sequences into a 2D NumPy array of binary vectors.
+
+    This function transforms each sequence of integers (e.g., word indices) into a fixed-size binary vector 
+    representation. Each sequence corresponds to a row in the resulting 2D array, where the columns represent 
+    the possible indices (up to the specified `dimension`). If an integer `j` appears in a sequence, the 
+    corresponding position in the binary vector is set to 1, otherwise 0. 
+
+    This is commonly used for preparing textual data for machine learning models (e.g., bag-of-words or 
+    one-hot encoding of text).
+
+    Parameters
+    ----------
+    sequences : list of lists of int
+        A list of sequences, where each sequence is a list of integers. Each integer corresponds to a specific 
+        word or token index.
+
+    dimension : int, optional
+        The size of the binary vector for each sequence (default is 10,000). This defines the number of 
+        possible features or word indices to represent. All sequences will be converted to binary vectors 
+        of this length.
+
+    Returns
+    -------
+    results : numpy.ndarray
+        A 2D NumPy array of shape `(len(sequences), dimension)`. Each row corresponds to a sequence, and 
+        each column corresponds to a specific feature (or token index). If an index appears in the sequence, 
+        the corresponding value in the array is 1, otherwise 0.
+
+    Raises
+    ------
+    IndexError
+        If any integer in a sequence is greater than or equal to `dimension`, as it will be out of bounds for 
+        the binary vector.
+
+    Notes
+    -----
+    - This function creates a binary vector for each sequence, where the presence of an integer `j` sets 
+      the `j`-th position in the vector to 1.
+    - It assumes that the integers in the sequences are non-negative and less than `dimension`. 
+    - This type of encoding is useful in natural language processing tasks where input sequences are tokenized 
+      as word or character indices, such as in sentiment analysis or text classification.
+
+    Example
+    -------
+    Suppose you have a dataset of sequences representing tokenized sentences, where each token is mapped to an integer index.
+
+    >>> sequences = [[1, 3, 5], [2, 3, 4, 5]]
+    >>> vectorized = int_to_binary_sequences(sequences, dimension=6)
+    >>> print(vectorized)
+    [[0. 1. 0. 1. 0. 1.]
+     [0. 0. 1. 1. 1. 1.]]
+
+    In this example, each sequence is converted into a binary vector of length 6, where the presence of an 
+    index in the sequence sets the corresponding position in the vector to 1.
+
+    """
+    if dimension == -1:
+        dimension = np.max([max(subsequence) for subsequence in sequences]) + 1
+
+    results = np.zeros((len(sequences), dimension))
+    for i, sequence in enumerate(sequences):
+        for j in sequence:
+            results[i, j] = 1
+    return results
 
 def vectorize_sequences(data, vocab_size=-1, remove_top=0):
     """
