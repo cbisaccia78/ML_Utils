@@ -262,7 +262,7 @@ def int_to_binary_sequence(sequences, dimension=-1):
             results[i, j] = 1
     return results
 
-def vectorize_sequences(data, vocab_size=-1, remove_top=0):
+def string_to_1hot_sequence(data, vocab_size=-1, remove_top=0):
     """
     Converts an array of string arrays into a one-hot encoded vector based on word frequency.
 
@@ -311,7 +311,7 @@ def vectorize_sequences(data, vocab_size=-1, remove_top=0):
     Example
     -------
     >>> data = np.array(["this is a test", "this is another test", "test example"])
-    >>> vectorize_sequences(data)
+    >>> string_to_1hot_sequence(data)
     array([[1., 1., 1., 1., 0., 0.],
        [1., 1., 1., 0., 1., 0.],
        [1., 0., 0., 0., 0., 1.]])
